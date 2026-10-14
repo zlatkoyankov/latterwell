@@ -4,6 +4,34 @@ import './App.css'
 
 type Language = 'en' | 'bg'
 
+const seoMetadata: Record<Language, { title: string; description: string; structuredDescription: string; features: string[] }> = {
+  en: {
+    title: 'Letterwell | Find Words from Your Letters',
+    description: 'Find English words from your letters with flexible word filters, random letter racks, and Scrabble, Words With Friends, or Boggle scores.',
+    structuredDescription: 'An English word finder that makes words from supplied letters and calculates Scrabble, Words With Friends, and Boggle scores.',
+    features: [
+      'English word finder',
+      'Letter position filters',
+      'Random letter racks',
+      'Scrabble score calculator',
+      'Words With Friends score calculator',
+      'Boggle score calculator',
+    ],
+  },
+  bg: {
+    title: 'Letterwell | Намери думи от букви',
+    description: 'Намери български думи от зададени букви, използвай филтри и разбъркай произволни букви. Провери точките си в Scrabble и Boggle.',
+    structuredDescription: 'Българска търсачка за думи, която съставя думи от зададени букви и изчислява точки за Scrabble и Boggle.',
+    features: [
+      'Българска търсачка за думи',
+      'Филтри по позиция на буквите',
+      'Случайни комбинации от букви',
+      'Калкулатор за точки в български Scrabble',
+      'Калкулатор за точки в Boggle',
+    ],
+  },
+}
+
 const examples: Record<Language, string[]> = {
   en: ['triangle', 'listen', 'stream'],
   bg: ['триъгълник', 'слушам', 'поток'],
@@ -16,6 +44,11 @@ const randomLetterPools: Record<Language, string> = {
 const scrabbleLetterScores: Record<string, number> = {
   a: 1, b: 3, c: 3, d: 2, e: 1, f: 4, g: 2, h: 4, i: 1, j: 8, k: 5, l: 1, m: 3,
   n: 1, o: 1, p: 3, q: 10, r: 1, s: 1, t: 1, u: 1, v: 4, w: 4, x: 8, y: 4, z: 10,
+}
+const bulgarianScrabbleLetterScores: Record<string, number> = {
+  а: 1, б: 2, в: 2, г: 3, д: 2, е: 1, ж: 4, з: 4, и: 1, й: 5,
+  к: 2, л: 2, м: 2, н: 1, о: 1, п: 1, р: 1, с: 1, т: 1, у: 5,
+  ф: 10, х: 5, ц: 8, ч: 5, ш: 8, щ: 10, ъ: 3, ь: 10, ю: 8, я: 5,
 }
 const wordsWithFriendsLetterScores: Record<string, number> = {
   a: 1, b: 4, c: 4, d: 2, e: 1, f: 4, g: 3, h: 3, i: 1, j: 10, k: 5, l: 2, m: 4,
@@ -124,6 +157,7 @@ function App() {
     placeholder: 'например триъгълник',
     findWords: 'Намери думи',
     findingWords: 'Търсене…',
+    searching: 'Търсене…',
     yourLetters: 'Твоите букви',
     enterUpTo: 'Въведи до 16 букви',
     lettersInPlay: 'БУКВИ В ИГРАТА',
@@ -142,6 +176,10 @@ function App() {
     any: 'Всяка',
     useAll: 'Използвай всички букви',
     exactAnagrams: 'Намирай точни анаграми',
+    scrabbleScores: 'Точки от Scrabble',
+    wordsWithFriendsScores: 'Точки от Words With Friends',
+    wordsWithFriendsUnavailable: 'Точките от Words With Friends са налични само за английски думи.',
+    boggleScores: 'Точки от Boggle',
     foundWords: 'Намерени думи',
     possibleWords: 'Възможните думи ще се появят тук',
     ready: 'Готов ли си за игра?',
@@ -151,6 +189,9 @@ function App() {
     loading: 'Зареждане на българския речник…',
     all: 'Всички',
     moreWords: 'още думи',
+    sortResults: 'Сортиране на резултатите',
+    sortByLength: 'По дължина',
+    sortAlphabetically: 'По азбучен ред',
   } : {
     tagline: 'Your English word finder',
     titleFirst: 'Your letters.',
@@ -161,6 +202,7 @@ function App() {
     placeholder: 'e.g. triangle',
     findWords: 'Find words',
     findingWords: 'Finding words…',
+    searching: 'Searching…',
     yourLetters: 'Your letters',
     enterUpTo: 'Enter up to 16 letters',
     lettersInPlay: 'LETTERS IN PLAY',
@@ -179,6 +221,10 @@ function App() {
     any: 'Any',
     useAll: 'Use all letters',
     exactAnagrams: 'Find exact anagrams',
+    scrabbleScores: 'Scrabble scores',
+    wordsWithFriendsScores: 'Words With Friends scores',
+    wordsWithFriendsUnavailable: '',
+    boggleScores: 'Boggle scores',
     foundWords: 'Found words',
     possibleWords: 'Possible words will appear here',
     ready: 'Ready to play?',
@@ -188,7 +234,11 @@ function App() {
     loading: 'Loading the English word list for your first search.',
     all: 'All',
     moreWords: 'more words',
+    sortResults: 'Sort results',
+    sortByLength: 'By length',
+    sortAlphabetically: 'A to Z',
   }
+  const pageMetadata = seoMetadata[language]
 
   const normalizedLetters = letters.toLocaleLowerCase(language === 'bg' ? 'bg-BG' : 'en')
   const availableLetters = [...new Set(normalizedLetters)]
@@ -224,6 +274,36 @@ function App() {
     }
   }, [language])
 
+  useEffect(() => {
+    const locale = language === 'bg' ? 'bg_BG' : 'en_US'
+    const socialDescription = language === 'bg'
+      ? 'Откривай български думи от буквите си и проверявай точките за Scrabble и Boggle.'
+      : 'Discover English words from your letters and compare Scrabble, Words With Friends, and Boggle scores.'
+
+    document.documentElement.lang = language
+    document.title = pageMetadata.title
+    document.querySelector('meta[name="description"]')?.setAttribute('content', pageMetadata.description)
+    document.querySelector('meta[property="og:locale"]')?.setAttribute('content', locale)
+    document.querySelector('meta[property="og:title"]')?.setAttribute('content', pageMetadata.title)
+    document.querySelector('meta[property="og:description"]')?.setAttribute('content', socialDescription)
+    document.querySelector('meta[name="twitter:title"]')?.setAttribute('content', pageMetadata.title)
+    document.querySelector('meta[name="twitter:description"]')?.setAttribute('content', socialDescription)
+
+    const structuredData = document.querySelector('script[type="application/ld+json"]')
+    if (structuredData) {
+      structuredData.textContent = JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'WebApplication',
+        name: 'Letterwell',
+        applicationCategory: 'GameApplication',
+        operatingSystem: 'Any',
+        inLanguage: language,
+        description: pageMetadata.structuredDescription,
+        featureList: pageMetadata.features,
+      })
+    }
+  }, [language, pageMetadata])
+
   const sortedWords = [...words].sort((first, second) =>
     sortOrder === 'longest'
       ? second.length - first.length || first.localeCompare(second, language === 'bg' ? 'bg' : 'en')
@@ -237,6 +317,8 @@ function App() {
   const filteredWords = selectedLength === 'all'
     ? sortedWords
     : sortedWords.filter((word) => word.length === selectedLength)
+  const tileScores = language === 'bg' ? bulgarianScrabbleLetterScores : scrabbleLetterScores
+  const showAnyWordScores = showScrabbleScores || (language === 'en' && showWordsWithFriendsScores) || showBoggleScores
 
   function clearResults() {
     setWords([])
@@ -534,7 +616,7 @@ function App() {
 
             <button className="search-button" type="submit" disabled={!normalizedLetters || isSearching}>
               {isSearching ? <span className="spinner" /> : <Search size={18} />}
-              {isSearching ? 'Searching…' : 'Find words'}
+              {isSearching ? text.searching : text.findWords}
             </button>
             <p className="dictionary-note">{language === 'bg' ? 'Търсенето използва локален български речник.' : 'Search runs locally using an English word list.'}</p>
           </form>
@@ -556,17 +638,21 @@ function App() {
                     onChange={(event) => setShowScrabbleScores(event.target.checked)}
                   />
                   <span className="custom-check"><Check size={14} /></span>
-                  <span className="toggle-copy"><strong>Scrabble scores</strong></span>
+                  <span className="toggle-copy"><strong>{text.scrabbleScores}</strong></span>
                 </label>
-                <label className="setting-toggle scores-toggle">
-                  <input
-                    type="checkbox"
-                    checked={showWordsWithFriendsScores}
-                    onChange={(event) => setShowWordsWithFriendsScores(event.target.checked)}
-                  />
-                  <span className="custom-check"><Check size={14} /></span>
-                  <span className="toggle-copy"><strong>Words With Friends</strong></span>
-                </label>
+                {language === 'en' ? (
+                  <label className="setting-toggle scores-toggle">
+                    <input
+                      type="checkbox"
+                      checked={showWordsWithFriendsScores}
+                      onChange={(event) => setShowWordsWithFriendsScores(event.target.checked)}
+                    />
+                    <span className="custom-check"><Check size={14} /></span>
+                    <span className="toggle-copy"><strong>{text.wordsWithFriendsScores}</strong></span>
+                  </label>
+                ) : (
+                  <span className="score-note">{text.wordsWithFriendsUnavailable}</span>
+                )}
                 <label className="setting-toggle scores-toggle">
                   <input
                     type="checkbox"
@@ -574,22 +660,22 @@ function App() {
                     onChange={(event) => setShowBoggleScores(event.target.checked)}
                   />
                   <span className="custom-check"><Check size={14} /></span>
-                  <span className="toggle-copy"><strong>Boggle scores</strong></span>
+                  <span className="toggle-copy"><strong>{text.boggleScores}</strong></span>
                 </label>
                 {hasSearched && words.length > 0 && (
-                  <div className="sort-control" aria-label="Sort results">
+                  <div className="sort-control" aria-label={text.sortResults}>
                     <button
                       type="button"
                       aria-pressed={sortOrder === 'longest'}
-                      aria-label="Sort by length"
-                      title="By length"
+                      aria-label={text.sortByLength}
+                      title={text.sortByLength}
                       onClick={() => setSortOrder('longest')}
                     ><ArrowUpNarrowWide size={17} /></button>
                     <button
                       type="button"
                       aria-pressed={sortOrder === 'alphabetical'}
-                      aria-label="Sort alphabetically"
-                      title="A to Z"
+                      aria-label={text.sortAlphabetically}
+                      title={text.sortAlphabetically}
                       onClick={() => setSortOrder('alphabetical')}
                     ><ArrowDownAZ size={17} /></button>
                   </div>
@@ -632,19 +718,22 @@ function App() {
                   ))}
                 </div>
                 <div className="result-meta"><span>{language === 'bg' ? 'ДУМИ, КОИТО МОЖЕШ ДА НАПРАВИШ' : 'WORDS YOU CAN MAKE'}</span><span>{Math.min(filteredWords.length, visibleCount)} / {filteredWords.length}</span></div>
-                <div className="word-list">
+                <div
+                  className="word-list"
+                  style={{ '--result-rows': Math.ceil(Math.min(filteredWords.length, visibleCount) / 2) } as React.CSSProperties}
+                >
                   {filteredWords.slice(0, visibleCount).map((word, index) => (
                     <div className="word-row" key={word} style={{ '--row-index': index } as React.CSSProperties}>
-                      <span className="word-length">{word.length}</span>
+                      <span className="word-index">{index + 1}</span>
                       <span className="word-text">{word}</span>
-                      {(showScrabbleScores || showWordsWithFriendsScores || showBoggleScores) && (
+                      {showAnyWordScores && (
                         <div className="word-scores">
                           {showScrabbleScores && (
-                            <span className="score-badge" aria-label={`Scrabble score ${getTileScore(word, scrabbleLetterScores)}`}>
-                              SCR {getTileScore(word, scrabbleLetterScores)}
+                            <span className="score-badge" aria-label={`Scrabble score ${getTileScore(word, tileScores)}`}>
+                              SCR {getTileScore(word, tileScores)}
                             </span>
                           )}
-                          {showWordsWithFriendsScores && (
+                          {language === 'en' && showWordsWithFriendsScores && (
                             <span className="score-badge" aria-label={`Words With Friends score ${getTileScore(word, wordsWithFriendsLetterScores)}`}>
                               WWF {getTileScore(word, wordsWithFriendsLetterScores)}
                             </span>

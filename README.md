@@ -35,6 +35,10 @@ See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rule
 
 Letterwell supports English and Bulgarian through the language selector in the top bar. The selected language controls both the interface and the word list used for searches. Language preferences are saved in the browser.
 
+The page title, description, social metadata, and structured data follow the selected language. The sitemap is available at `/letterwell/sitemap.xml`; both languages currently share the same canonical URL.
+
+Bulgarian Scrabble scores use Bulgarian letter values. Words With Friends scoring is available for English words only.
+
 The Bulgarian word list in `public/bulgarian-words.txt` is derived from [bayganyu/bulgarian-dictionary](https://github.com/bayganyu/bulgarian-dictionary), licensed under MIT. Its license is included in `public/bulgarian-words-license.txt`.
 
 To add another language:

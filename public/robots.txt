@@ -1,2 +1,4 @@
 User-agent: *
 Allow: /
+
+Sitemap: https://zyankov.eu/letterwell/sitemap.xml
